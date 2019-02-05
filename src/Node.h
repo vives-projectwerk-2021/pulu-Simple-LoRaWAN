@@ -29,7 +29,7 @@ namespace SimpleLoRaWAN
 class Node
 {
 public:
-    Node(uint8_t _dev_eui[], uint8_t _app_eui[], uint8_t _app_key[]);
+    Node(uint8_t _dev_eui[], uint8_t _app_eui[], uint8_t _app_key[], bool wait_until_connected = true);
     virtual ~Node();
     // void send(char* data, int size, bool acknowledge = false);
     // void send(unsigned char port, char* data, int size, bool acknowledge = false);
@@ -45,6 +45,8 @@ private:
 
     uint8_t tx_buffer[30];
     uint8_t rx_buffer[30];
+
+    bool connected;
 
     void initialize();
     void connect(lorawan_connect_t &params);

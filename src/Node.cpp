@@ -9,15 +9,21 @@ using namespace events;
 namespace SimpleLoRaWAN
 {
 
-  Node::Node(uint8_t _dev_eui[], uint8_t _app_eui[], uint8_t _app_key[]):
+  Node::Node(uint8_t _dev_eui[], uint8_t _app_eui[], uint8_t _app_key[], bool wait_until_connected):
     radio(D11, D12, D13, A0, A1, D2, D3, NC, NC, NC, NC, NC, NC, NC, NC, NC, NC, NC),
     ev_queue(MAX_NUMBER_OF_EVENTS *EVENTS_EVENT_SIZE),
     lorawan(radio),
     processThread(mbed::callback(this, &Node::processEvents))
   {
+    connected = false;
     lorawan_connect_t connect_params = { LORAWAN_CONNECTION_OTAA, {_dev_eui, _app_eui, _app_key, 5} };
     initialize();
     connect(connect_params);
+    if(wait_until_connected) {
+      while(!connected) {
+        Thread::wait(100);
+      }
+    }
   }
 
   Node::~Node(){}
@@ -74,9 +80,10 @@ namespace SimpleLoRaWAN
 
   void Node::send(unsigned char port, uint8_t* data, int size, bool acknowledge)
   {
+    uint8_t options = acknowledge ? MSG_CONFIRMED_FLAG : MSG_UNCONFIRMED_FLAG;
     int16_t retcode;
 
-    retcode = lorawan.send(port, data, size, MSG_UNCONFIRMED_FLAG);
+    retcode = lorawan.send(port, data, size, options);
 
     if (retcode < 0) {
         retcode == LORAWAN_STATUS_WOULD_BLOCK ? printf("send - WOULD BLOCK\r\n")
@@ -97,8 +104,8 @@ namespace SimpleLoRaWAN
 {
     switch (event) {
         case CONNECTED:
+            connected = true;
             printf("\r\n Connection - Successful \r\n");
-            send_message();
             break;
         case DISCONNECTED:
             ev_queue.break_dispatch();
