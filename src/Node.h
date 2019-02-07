@@ -34,7 +34,7 @@ public:
     // void send(char* data, int size, bool acknowledge = false);
     // void send(unsigned char port, char* data, int size, bool acknowledge = false);
     // void send(uint8_t* data, int size, bool acknowledge = false);
-    void send(unsigned char port, uint8_t* data, int size, bool acknowledge = false);
+    void send(uint8_t* data, int size, unsigned char port = 1, bool acknowledge = false);
 
 private:
 

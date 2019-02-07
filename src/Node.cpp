@@ -78,7 +78,7 @@ namespace SimpleLoRaWAN
     printf("\r\n Connection - In Progress ...\r\n");
   }
 
-  void Node::send(unsigned char port, uint8_t* data, int size, bool acknowledge)
+  void Node::send(uint8_t* data, int size, unsigned char port, bool acknowledge)
   {
     uint8_t options = acknowledge ? MSG_CONFIRMED_FLAG : MSG_UNCONFIRMED_FLAG;
     int16_t retcode;
