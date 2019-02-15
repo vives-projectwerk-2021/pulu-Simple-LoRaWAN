@@ -6,6 +6,14 @@
 #include "SX1276_LoRaRadio.h"
 #include "rtos.h"
 
+#define LORAWAN_DEBUGGING
+#ifdef LORAWAN_DEBUGGING
+  #define debug(MSG, ...)  printf("[Simple-LoRaWAN] " MSG "\r\n", \
+                              ## __VA_ARGS__)
+#else
+  #define debug(msg) while(false)
+#endif
+
 /*
  * Sets up an application dependent transmission timer in ms. Used only when Duty Cycling is off for testing
  */
