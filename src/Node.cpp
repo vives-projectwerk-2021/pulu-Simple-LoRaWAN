@@ -106,20 +106,33 @@ namespace SimpleLoRaWAN
         case CONNECTED:
             connected = true;
             debug("Connection - Successful");
+            if (onConnected) {
+              onConnected();
+            }
             break;
         case DISCONNECTED:
+            connected = false;
             ev_queue.break_dispatch();
             debug("Disconnected Successfully");
+            if (onDisconnected) {
+              onDisconnected();
+            }
             break;
         case TX_DONE:
             debug("Message Sent to Network Server");
             send_message();
+            if (onTransmitted) {
+              onTransmitted();
+            }
             break;
         case TX_TIMEOUT:
         case TX_ERROR:
         case TX_CRYPTO_ERROR:
         case TX_SCHEDULING_ERROR:
             debug("Transmission Error - EventCode = %d", event);
+            if (onTransmissionError) {
+              onTransmissionError();
+            }
             // try again
             send_message();
             break;
@@ -139,7 +152,7 @@ namespace SimpleLoRaWAN
             send_message();
             break;
         default:
-            MBED_ASSERT("Unknown Event");
+            debug("Unknown event happened");
     }
 }
 
@@ -149,8 +162,12 @@ void Node::processEvents()
   ev_queue.dispatch_forever();
 }
 
-
 void Node::send_message(){}
 void Node::receive_message(){}
+
+void Node::on_connected(mbed::Callback<void()> cb)           { onConnected = cb; }
+void Node::on_disconnected(mbed::Callback<void()> cb)        { onDisconnected = cb; }
+void Node::on_transmitted(mbed::Callback<void()> cb)         { onTransmitted = cb; }
+void Node::on_transmission_error(mbed::Callback<void()> cb)  { onTransmissionError = cb; }
 
 }

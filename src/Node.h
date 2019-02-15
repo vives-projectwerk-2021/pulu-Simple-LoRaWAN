@@ -44,6 +44,13 @@ public:
     // void send(uint8_t* data, int size, bool acknowledge = false);
     void send(uint8_t* data, int size, unsigned char port = 1, bool acknowledge = false);
 
+  // Register callbacks
+  public:
+    void on_connected(mbed::Callback<void()> cb);
+    void on_disconnected(mbed::Callback<void()> cb);
+    void on_transmitted(mbed::Callback<void()> cb);
+    void on_transmission_error(mbed::Callback<void()> cb);
+
 private:
 
     events::EventQueue ev_queue;
@@ -61,6 +68,12 @@ private:
 
     void lora_event_handler(lorawan_event_t event);
     void processEvents();
+
+    // Allows for easy event handler registration
+    mbed::Callback<void()> onConnected;
+    mbed::Callback<void()> onDisconnected;
+    mbed::Callback<void()> onTransmitted;
+    mbed::Callback<void()> onTransmissionError;
 
     Thread processThread;
 
