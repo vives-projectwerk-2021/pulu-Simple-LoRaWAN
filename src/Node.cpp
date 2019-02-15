@@ -45,11 +45,11 @@ namespace SimpleLoRaWAN
   {
     // Initialize LoRaWAN stack
     if (lorawan.initialize(&ev_queue) != LORAWAN_STATUS_OK) {
-        printf("\r\n LoRa initialization failed! \r\n");
+        debug("LoRa initialization failed!");
         // return -1;
     }
 
-    printf("\r\n Mbed LoRaWANStack initialized \r\n");
+    debug("Mbed LoRaWANStack initialized");
 
     // prepare application callbacks
     callbacks.events = mbed::callback(this, &Node::lora_event_handler);
@@ -58,20 +58,20 @@ namespace SimpleLoRaWAN
     // Set number of retries in case of CONFIRMED messages
     if (lorawan.set_confirmed_msg_retries(CONFIRMED_MSG_RETRY_COUNTER)
             != LORAWAN_STATUS_OK) {
-        printf("\r\n set_confirmed_msg_retries failed! \r\n\r\n");
+        debug("set_confirmed_msg_retries failed!");
         // return -1;
     }
 
-    printf("\r\n CONFIRMED message retries : %d \r\n",
+    debug("CONFIRMED message retries : %d",
            CONFIRMED_MSG_RETRY_COUNTER);
 
     // Enable adaptive data rate
     if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
-        printf("\r\n enable_adaptive_datarate failed! \r\n");
+        debug("enable_adaptive_datarate failed!");
         // return -1;
     }
 
-    printf("\r\n Adaptive data  rate (ADR) - Enabled \r\n");
+    debug("Adaptive data  rate (ADR) - Enabled");
   }
 
   void Node::connect(lorawan_connect_t &params)
@@ -84,11 +84,11 @@ namespace SimpleLoRaWAN
     if (retcode == LORAWAN_STATUS_OK ||
             retcode == LORAWAN_STATUS_CONNECT_IN_PROGRESS) {
     } else {
-        printf("\r\n Connection error, code = %d \r\n", retcode);
+        debug("Connection error, code = %d", retcode);
         // return -1;
     }
 
-    printf("\r\n Connection - In Progress ...\r\n");
+    debug("Connection - In Progress ...");
   }
 
   void Node::send(uint8_t* data, int size, unsigned char port, bool acknowledge)
@@ -99,8 +99,8 @@ namespace SimpleLoRaWAN
     retcode = lorawan.send(port, data, size, options);
 
     if (retcode < 0) {
-        retcode == LORAWAN_STATUS_WOULD_BLOCK ? printf("send - WOULD BLOCK\r\n")
-        : printf("\r\n send() - Error code %d \r\n", retcode);
+        retcode == LORAWAN_STATUS_WOULD_BLOCK ? debug("send - WOULD BLOCK")
+        : debug("send() - Error code %d", retcode);
 
         if (retcode == LORAWAN_STATUS_WOULD_BLOCK) {
             //retry in 3 seconds
@@ -109,7 +109,7 @@ namespace SimpleLoRaWAN
         return;
     }
 
-    printf("\r\n %d bytes scheduled for transmission \r\n", retcode);
+    debug("%d bytes scheduled for transmission", retcode);
     memset(tx_buffer, 0, sizeof(tx_buffer));
   }
 
@@ -118,37 +118,37 @@ namespace SimpleLoRaWAN
     switch (event) {
         case CONNECTED:
             connected = true;
-            printf("\r\n Connection - Successful \r\n");
+            debug("Connection - Successful");
             break;
         case DISCONNECTED:
             ev_queue.break_dispatch();
-            printf("\r\n Disconnected Successfully \r\n");
+            debug("Disconnected Successfully");
             break;
         case TX_DONE:
-            printf("\r\n Message Sent to Network Server \r\n");
+            debug("Message Sent to Network Server");
             send_message();
             break;
         case TX_TIMEOUT:
         case TX_ERROR:
         case TX_CRYPTO_ERROR:
         case TX_SCHEDULING_ERROR:
-            printf("\r\n Transmission Error - EventCode = %d \r\n", event);
+            debug("Transmission Error - EventCode = %d", event);
             // try again
             send_message();
             break;
         case RX_DONE:
-            printf("\r\n Received message from Network Server \r\n");
+            debug("Received message from Network Server");
             receive_message();
             break;
         case RX_TIMEOUT:
         case RX_ERROR:
-            printf("\r\n Error in reception - Code = %d \r\n", event);
+            debug("Error in reception - Code = %d", event);
             break;
         case JOIN_FAILURE:
-            printf("\r\n OTAA Failed - Check Keys \r\n");
+            debug("OTAA Failed - Check Keys");
             break;
         case UPLINK_REQUIRED:
-            printf("\r\n Uplink required by NS \r\n");
+            debug("Uplink required by NS");
             send_message();
             break;
         default:
