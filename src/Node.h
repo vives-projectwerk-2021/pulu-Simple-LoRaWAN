@@ -6,6 +6,8 @@
 #include "SX1276_LoRaRadio.h"
 #include "rtos.h"
 
+#include "Settings.h"
+
 #define LORAWAN_DEBUGGING
 #ifdef LORAWAN_DEBUGGING
   #define debug(MSG, ...)  printf("[Simple-LoRaWAN] " MSG "\r\n", \
@@ -37,7 +39,7 @@ namespace SimpleLoRaWAN
 class Node
 {
 public:
-    Node(uint8_t _dev_eui[], uint8_t _app_eui[], uint8_t _app_key[], bool wait_until_connected = true);
+    Node(Config config);
     virtual ~Node();
     // void send(char* data, int size, bool acknowledge = false);
     // void send(unsigned char port, char* data, int size, bool acknowledge = false);
