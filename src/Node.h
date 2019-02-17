@@ -6,7 +6,7 @@
 #include "SX1276_LoRaRadio.h"
 #include "rtos.h"
 
-#include "Settings.h"
+#include "config.h"
 
 #define LORAWAN_DEBUGGING
 #ifdef LORAWAN_DEBUGGING
@@ -39,7 +39,8 @@ namespace SimpleLoRaWAN
 class Node
 {
 public:
-    Node(Config config);
+    Node(LoRaWANKeys keys, bool wait_until_connected = true);
+    Node(LoRaWANKeys keys, Pinmapping pins, bool wait_until_connected = true);
     virtual ~Node();
     // void send(char* data, int size, bool acknowledge = false);
     // void send(unsigned char port, char* data, int size, bool acknowledge = false);
@@ -52,7 +53,7 @@ public:
     void on_disconnected(mbed::Callback<void()> cb);
     void on_transmitted(mbed::Callback<void()> cb);
     void on_transmission_error(mbed::Callback<void()> cb);
-    
+
     void enableAdaptiveDataRate();
 
 private:

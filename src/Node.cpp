@@ -9,15 +9,19 @@ using namespace events;
 namespace SimpleLoRaWAN
 {
 
-  Node::Node(Config config):
+  Node::Node(LoRaWANKeys keys, bool wait_until_connected): 
+  Node (keys, { D11, D12, D13, A0, A1, D2, D3 }, wait_until_connected)
+  {  }
+
+  Node::Node(LoRaWANKeys keys, Pinmapping pins, bool wait_until_connected):
     radio(
-      config.pins.miso,
-      config.pins.mosi,
-      config.pins.clk,
-      config.pins.nss,
-      config.pins.reset,
-      config.pins.dio0,
-      config.pins.dio1,
+      pins.miso,
+      pins.mosi,
+      pins.clk,
+      pins.nss,
+      pins.reset,
+      pins.dio0,
+      pins.dio1,
       NC, NC, NC, NC, NC, NC, NC, NC, NC, NC, NC),
     ev_queue(MAX_NUMBER_OF_EVENTS *EVENTS_EVENT_SIZE),
     lorawan(radio),
@@ -25,14 +29,14 @@ namespace SimpleLoRaWAN
   {
     connected = false;
     lorawan_connect_t connect_params = { LORAWAN_CONNECTION_OTAA, {
-      config.keys.devEui,
-      config.keys.appEui,
-      config.keys.appKey,
+      keys.devEui,
+      keys.appEui,
+      keys.appKey,
       5
     } };
     initialize();
     connect(connect_params);
-    if(config.wait_until_connected) {
+    if(wait_until_connected) {
       while(!connected) {
         Thread::wait(100);
       }
