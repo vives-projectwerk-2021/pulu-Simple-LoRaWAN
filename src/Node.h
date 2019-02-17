@@ -52,6 +52,8 @@ public:
     void on_disconnected(mbed::Callback<void()> cb);
     void on_transmitted(mbed::Callback<void()> cb);
     void on_transmission_error(mbed::Callback<void()> cb);
+    
+    void enableAdaptiveDataRate();
 
 private:
 
