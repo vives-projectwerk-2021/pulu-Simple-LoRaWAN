@@ -113,8 +113,15 @@ namespace SimpleLoRaWAN
     memset(tx_buffer, 0, sizeof(tx_buffer));
   }
 
+  void Node::enableAdaptiveDataRate()
+  {
+    if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
+        debug("\r\n enable_adaptive_datarate failed! \r\n");
+    }
+  }
+
   void Node::lora_event_handler(lorawan_event_t event)
-{
+  {
     switch (event) {
         case CONNECTED:
             connected = true;

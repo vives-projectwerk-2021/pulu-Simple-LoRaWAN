@@ -46,6 +46,8 @@ public:
     // void send(uint8_t* data, int size, bool acknowledge = false);
     void send(uint8_t* data, int size, unsigned char port = 1, bool acknowledge = false);
 
+    void enableAdaptiveDataRate();
+
 private:
 
     events::EventQueue ev_queue;
