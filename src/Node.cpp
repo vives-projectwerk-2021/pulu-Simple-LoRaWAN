@@ -36,6 +36,7 @@ namespace SimpleLoRaWAN
     } };
     initialize();
     connect(connect_params);
+    setDataRate(DR_5);
     if(wait_until_connected) {
       while(!connected) {
         Thread::wait(100);
@@ -69,13 +70,11 @@ namespace SimpleLoRaWAN
     debug("CONFIRMED message retries : %d",
            CONFIRMED_MSG_RETRY_COUNTER);
 
-    // Enable adaptive data rate
-    if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
-        debug("enable_adaptive_datarate failed!");
-        // return -1;
-    }
-
-    debug("Adaptive data  rate (ADR) - Enabled");
+    // // Enable adaptive data rate
+    // if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
+    //     debug("enable_adaptive_datarate failed!");
+    //     // return -1;
+    // }
   }
 
   void Node::connect(lorawan_connect_t &params)
@@ -121,6 +120,14 @@ namespace SimpleLoRaWAN
   {
     if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
         debug("\r\n enable_adaptive_datarate failed! \r\n");
+    }
+  }
+
+  void Node::setDataRate(int datarate)
+  {
+    int result = lorawan.set_datarate(datarate);
+    if ( result != LORAWAN_STATUS_OK) {
+      debug("set_datarate failed! (%d)", result);
     }
   }
 
