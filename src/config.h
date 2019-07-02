@@ -11,8 +11,8 @@ struct LoRaWANKeys {
 };
 
 struct Pinmapping {
-    PinName miso; // = D11;
-    PinName mosi; // = D12;
+    PinName mosi; // = D11;
+    PinName miso; // = D12;
     PinName clk; // = D13;
     PinName nss; // = A0;
     PinName reset; // = A1;

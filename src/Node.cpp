@@ -15,8 +15,8 @@ namespace SimpleLoRaWAN
 
   Node::Node(LoRaWANKeys keys, Pinmapping pins, bool wait_until_connected):
     radio(
-      pins.miso,
       pins.mosi,
+      pins.miso,
       pins.clk,
       pins.nss,
       pins.reset,
