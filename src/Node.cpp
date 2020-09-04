@@ -24,9 +24,9 @@ namespace SimpleLoRaWAN
       pins.dio1,
       NC, NC, NC, NC, NC, NC, NC, NC, NC, NC, NC),
     ev_queue(MAX_NUMBER_OF_EVENTS *EVENTS_EVENT_SIZE),
-    lorawan(radio),
-    processThread(mbed::callback(this, &Node::processEvents))
+    lorawan(radio)
   {
+    processThread.start(mbed::callback(this, &Node::processEvents));
     connected = false;
     lorawan_connect_t connect_params = { LORAWAN_CONNECTION_OTAA, {
       keys.devEui,
@@ -38,7 +38,7 @@ namespace SimpleLoRaWAN
     connect(connect_params);
     if(wait_until_connected) {
       while(!connected) {
-        Thread::wait(100);
+        ThisThread::sleep_for(100ms);
       }
     }
   }
@@ -108,7 +108,7 @@ namespace SimpleLoRaWAN
 
         if (retcode == LORAWAN_STATUS_WOULD_BLOCK) {
             //retry in 3 seconds
-            ev_queue.call_in(3000, mbed::callback(this, &Node::send_message));
+            ev_queue.call_in(3s, mbed::callback(this, &Node::send_message));
         }
         return;
     }

@@ -6,7 +6,7 @@
 #include "SX1276_LoRaRadio.h"
 #include "rtos.h"
 
-#include "config.h"
+#include "simple-lorawan-config.h"
 
 #define LORAWAN_DEBUGGING
 #ifdef LORAWAN_DEBUGGING
@@ -58,8 +58,8 @@ public:
 
 private:
 
-    events::EventQueue ev_queue;
     SX1276_LoRaRadio radio;
+    events::EventQueue ev_queue;
     LoRaWANInterface lorawan;
     lorawan_app_callbacks_t callbacks;
 
