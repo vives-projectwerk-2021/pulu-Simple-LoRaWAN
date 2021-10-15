@@ -3,18 +3,18 @@
 #include "stdint.h"
 #include "events/EventQueue.h"
 #include "lorawan/LoRaWANInterface.h"
+#include "lorawan/LoRaRadio.h"
 #include "SX1276_LoRaRadio.h"
 #include "rtos.h"
-
 #include "simple-lorawan-config.h"
 
-#define LORAWAN_DEBUGGING
-#ifdef LORAWAN_DEBUGGING
-  #define debug(MSG, ...)  printf("[Simple-LoRaWAN] " MSG "\r\n", \
-                              ## __VA_ARGS__)
-#else
-  #define debug(msg) while(false)
-#endif
+// #define LORAWAN_DEBUGGING
+// #ifdef LORAWAN_DEBUGGING
+//   #define debug(MSG, ...)  printf("[Simple-LoRaWAN] " MSG "\r\n", \
+//                               ## __VA_ARGS__)
+// #else
+#define debug(msg, ...) ((void)0)
+// #endif
 
 /*
  * Sets up an application dependent transmission timer in ms. Used only when Duty Cycling is off for testing
@@ -39,6 +39,7 @@ namespace SimpleLoRaWAN
 class Node
 {
 public:
+    Node(bool wait_until_connected = true);
     Node(LoRaWANKeys keys, bool wait_until_connected = true);
     Node(LoRaWANKeys keys, Pinmapping pins, bool wait_until_connected = true);
     virtual ~Node();
@@ -69,6 +70,7 @@ private:
     bool connected;
 
     void initialize();
+    void connect();
     void connect(lorawan_connect_t &params);
 
     void lora_event_handler(lorawan_event_t event);

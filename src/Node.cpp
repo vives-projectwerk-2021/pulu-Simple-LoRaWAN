@@ -4,13 +4,32 @@
 #include "lorawan/LoRaRadio.h"
 #include <stdio.h>
 
+using namespace std::literals::chrono_literals;
 using namespace events;
 
 namespace SimpleLoRaWAN
 {
 
+  Node::Node(bool wait_until_connected):
+  Node (
+    {
+      MBED_CONF_LORA_DEVICE_EUI,
+      MBED_CONF_LORA_APPLICATION_EUI,
+      MBED_CONF_LORA_APPLICATION_KEY
+    }, wait_until_connected)
+  {  }
+
   Node::Node(LoRaWANKeys keys, bool wait_until_connected): 
-  Node (keys, { D11, D12, D13, A0, A1, D2, D3 }, wait_until_connected)
+  Node (
+    keys, { 
+      MBED_CONF_SX1276_LORA_DRIVER_SPI_MOSI,
+      MBED_CONF_SX1276_LORA_DRIVER_SPI_MISO,
+      MBED_CONF_SX1276_LORA_DRIVER_SPI_SCLK,
+      MBED_CONF_SX1276_LORA_DRIVER_SPI_CS,
+      MBED_CONF_SX1276_LORA_DRIVER_RESET,
+      MBED_CONF_SX1276_LORA_DRIVER_DIO0,
+      MBED_CONF_SX1276_LORA_DRIVER_DIO1 
+    }, wait_until_connected)
   {  }
 
   Node::Node(LoRaWANKeys keys, Pinmapping pins, bool wait_until_connected):

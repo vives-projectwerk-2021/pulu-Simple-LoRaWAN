@@ -1,0 +1,13 @@
+{
+    "name": "simple-lorawan",
+    "config": {
+        "main_stack_size":     { "value": 4096 }
+    },
+    "target_overrides": {
+        "*": {
+            "target.components_add":            ["SX1276"]
+        }
+    },
+    "macros": ["MBEDTLS_USER_CONFIG_FILE=\"mbedtls_lora_config.h\""]
+}
+
