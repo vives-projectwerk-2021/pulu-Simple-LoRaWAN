@@ -206,7 +206,25 @@ void Node::processEvents()
 }
 
 void Node::send_message(){}
-void Node::receive_message(){}
+void Node::receive_message() {
+  char data[4];
+  uint8_t port;
+  int flags;
+  uint16_t ret;
+
+  ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
+
+  if(ret < 0) {
+    debug("return value: %d", ret);
+  } else if (ret == 0) {
+    debug("return value: 0");
+  } else {
+    debug("received %d bytes on port %d", sizeof(data)/2, port);
+    for(uint8_t i = 0; i < sizeof(data)/2; i++) {
+      debug("%x", data[i]);
+    }
+  }
+}
 
 void Node::on_connected(mbed::Callback<void()> cb)           { onConnected = cb; }
 void Node::on_disconnected(mbed::Callback<void()> cb)        { onDisconnected = cb; }
