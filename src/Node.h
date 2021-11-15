@@ -54,6 +54,7 @@ public:
     void on_disconnected(mbed::Callback<void()> cb);
     void on_transmitted(mbed::Callback<void()> cb);
     void on_transmission_error(mbed::Callback<void()> cb);
+    void on_received(mbed::Callback<void(char* data, uint8_t length, uint8_t port)> cb);
 
     void enableAdaptiveDataRate();
 
@@ -81,6 +82,7 @@ private:
     mbed::Callback<void()> onDisconnected;
     mbed::Callback<void()> onTransmitted;
     mbed::Callback<void()> onTransmissionError;
+    mbed::Callback<void(char* data, uint8_t length, uint8_t port)> onReceived;
 
     Thread processThread;
 

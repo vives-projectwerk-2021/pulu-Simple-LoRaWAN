@@ -207,21 +207,16 @@ void Node::processEvents()
 
 void Node::send_message(){}
 void Node::receive_message() {
-  char data[4];
-  uint8_t port;
-  int flags;
-  uint16_t ret;
-
-  ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
-
-  if(ret < 0) {
-    debug("return value: %d", ret);
-  } else if (ret == 0) {
-    debug("return value: 0");
-  } else {
-    debug("received %d bytes on port %d", sizeof(data)/2, port);
-    for(uint8_t i = 0; i < sizeof(data)/2; i++) {
-      debug("%x", data[i]);
+  if (onReceived) {
+    char data[MBED_CONF_LORA_TX_MAX_SIZE] {0};
+    uint8_t port;
+    int flags;
+    
+    int16_t ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
+    
+    if(ret > 0) {
+      debug("Received %d bytes on port %d", ret, port);
+      onReceived(data, ret, port);
     }
   }
 }
@@ -230,5 +225,6 @@ void Node::on_connected(mbed::Callback<void()> cb)           { onConnected = cb;
 void Node::on_disconnected(mbed::Callback<void()> cb)        { onDisconnected = cb; }
 void Node::on_transmitted(mbed::Callback<void()> cb)         { onTransmitted = cb; }
 void Node::on_transmission_error(mbed::Callback<void()> cb)  { onTransmissionError = cb; }
+void Node::on_received(mbed::Callback<void(char* data, uint8_t length, uint8_t port)> cb)  { onReceived = cb; }
 
 }
