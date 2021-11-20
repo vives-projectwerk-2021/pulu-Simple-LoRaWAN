@@ -209,17 +209,19 @@ namespace SimpleLoRaWAN
   }
 
   void Node::receive() {
-    if (onReceived) {
-      char data[MBED_CONF_LORA_TX_MAX_SIZE] {0};
-      uint8_t port;
-      int flags;
+    char data[MBED_CONF_LORA_TX_MAX_SIZE] {0};
+    uint8_t port;
+    int flags;
 
-      int16_t ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
+    int16_t ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
 
-      if(ret > 0) {
-        debug("Received %d bytes on port %d", ret, port);
+    while(ret > 0) {
+      debug("Received %d bytes on port %d", ret, port);
+      if (onReceived) {
         onReceived(data, ret, port);
       }
+      // read rx buffer again to make sure it's empty for the next message
+      ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
     }
   }
 
