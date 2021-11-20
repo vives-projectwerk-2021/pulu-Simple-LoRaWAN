@@ -89,12 +89,20 @@ namespace SimpleLoRaWAN
            CONFIRMED_MSG_RETRY_COUNTER);
 
     // Enable adaptive data rate
+    enableAdaptiveDataRate();
+  }
+
+  // Return: false on success; true on failure
+  bool Node::enableAdaptiveDataRate()
+  {
     if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
         debug("enable_adaptive_datarate failed!");
-        // return -1;
+        return true;
     }
-
-    debug("Adaptive data  rate (ADR) - Enabled");
+    else {
+        debug("Adaptive data  rate (ADR) - Enabled");
+        return false;
+    }
   }
 
   void Node::connect(lorawan_connect_t &params)
@@ -114,7 +122,7 @@ namespace SimpleLoRaWAN
     debug("Connection - In Progress ...");
   }
 
-  void Node::send(uint8_t* data, int size, unsigned char port, bool acknowledge)
+  void Node::send(uint8_t* data, int size, uint8_t port, bool acknowledge)
   {
     uint8_t options = acknowledge ? MSG_CONFIRMED_FLAG : MSG_UNCONFIRMED_FLAG;
     int16_t retcode;
@@ -127,20 +135,13 @@ namespace SimpleLoRaWAN
 
         if (retcode == LORAWAN_STATUS_WOULD_BLOCK) {
             //retry in 3 seconds
-            ev_queue.call_in(3s, mbed::callback(this, &Node::send_message));
+            ev_queue.call_in(3s,
+              mbed::callback(this, &Node::send), data, size, port, acknowledge);
         }
         return;
     }
 
     debug("%d bytes scheduled for transmission", retcode);
-    memset(tx_buffer, 0, sizeof(tx_buffer));
-  }
-
-  void Node::enableAdaptiveDataRate()
-  {
-    if (lorawan.enable_adaptive_datarate() != LORAWAN_STATUS_OK) {
-        debug("\r\n enable_adaptive_datarate failed! \r\n");
-    }
   }
 
   void Node::lora_event_handler(lorawan_event_t event)
@@ -163,7 +164,6 @@ namespace SimpleLoRaWAN
             break;
         case TX_DONE:
             debug("Message Sent to Network Server");
-            send_message();
             if (onTransmitted) {
               onTransmitted();
             }
@@ -176,55 +176,59 @@ namespace SimpleLoRaWAN
             if (onTransmissionError) {
               onTransmissionError();
             }
-            // try again
-            send_message();
             break;
         case RX_DONE:
             debug("Received message from Network Server");
-            receive_message();
+            receive();
             break;
         case RX_TIMEOUT:
         case RX_ERROR:
             debug("Error in reception - Code = %d", event);
+            if (onReceptionError) {
+              onReceptionError();
+            }
             break;
         case JOIN_FAILURE:
             debug("OTAA Failed - Check Keys");
+            if (onJoinFailure) {
+              onJoinFailure();
+            }
             break;
         case UPLINK_REQUIRED:
             debug("Uplink required by NS");
-            send_message();
             break;
         default:
             debug("Unknown event happened");
     }
-}
+  }
 
-void Node::processEvents()
-{
-  // make your event queue dispatching events forever
-  ev_queue.dispatch_forever();
-}
+  void Node::processEvents()
+  {
+    // make your event queue dispatching events forever
+    ev_queue.dispatch_forever();
+  }
 
-void Node::send_message(){}
-void Node::receive_message() {
-  if (onReceived) {
-    char data[MBED_CONF_LORA_TX_MAX_SIZE] {0};
-    uint8_t port;
-    int flags;
-    
-    int16_t ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
-    
-    if(ret > 0) {
-      debug("Received %d bytes on port %d", ret, port);
-      onReceived(data, ret, port);
+  void Node::receive() {
+    if (onReceived) {
+      char data[MBED_CONF_LORA_TX_MAX_SIZE] {0};
+      uint8_t port;
+      int flags;
+
+      int16_t ret = lorawan.receive((uint8_t*)data, sizeof(data), port, flags);
+
+      if(ret > 0) {
+        debug("Received %d bytes on port %d", ret, port);
+        onReceived(data, ret, port);
+      }
     }
   }
-}
 
-void Node::on_connected(mbed::Callback<void()> cb)           { onConnected = cb; }
-void Node::on_disconnected(mbed::Callback<void()> cb)        { onDisconnected = cb; }
-void Node::on_transmitted(mbed::Callback<void()> cb)         { onTransmitted = cb; }
-void Node::on_transmission_error(mbed::Callback<void()> cb)  { onTransmissionError = cb; }
-void Node::on_received(mbed::Callback<void(char* data, uint8_t length, uint8_t port)> cb)  { onReceived = cb; }
+  void Node::on_connected(mbed::Callback<void()> cb)           { onConnected = cb; }
+  void Node::on_disconnected(mbed::Callback<void()> cb)        { onDisconnected = cb; }
+  void Node::on_transmitted(mbed::Callback<void()> cb)         { onTransmitted = cb; }
+  void Node::on_transmission_error(mbed::Callback<void()> cb)  { onTransmissionError = cb; }
+  void Node::on_received(mbed::Callback<void(char* data, uint8_t length, uint8_t port)> cb)  { onReceived = cb; }
+  void Node::on_reception_error(mbed::Callback<void()> cb)     { onReceptionError = cb; }
+  void Node::on_join_failure(mbed::Callback<void()> cb)        { onJoinFailure = cb; }
 
 }
